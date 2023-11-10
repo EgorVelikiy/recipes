@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.paginator import Paginator
 
@@ -20,16 +21,15 @@ DATA = {
     # можете добавить свои рецепты ;)
 }
 
-CONTENT = [(i, j) for i, j in DATA.items()]
 
+def dish(request):
+    servings = int(request.GET.get("servings", 1))
+    dish = request.path_info[1:-1]
+    context = {'recipe': {}}
+    if servings > 1:
+        for ingr, amount in DATA[dish].items():
+            context['recipe'][ingr] = amount * servings
+    else:
+        context['recipe'] = DATA[dish]
 
-
-# Напишите ваш обработчик. Используйте DATA как источник данных
-# Результат - render(request, 'calculator/index.html', context)
-# В качестве контекста должен быть передан словарь с рецептом:
-# context = {
-#   'recipe': {
-#     'ингредиент1': количество1,
-#     'ингредиент2': количество2,
-#   }
-# }
+    return render(request, 'calculator/index.html', context)
